@@ -1,5 +1,4 @@
-import React, { Ref, PropsWithChildren } from 'react'
-import ReactDOM from 'react-dom'
+import React, { Ref, useRef, PropsWithChildren } from 'react'
 import { cx, css } from '@emotion/css'
 
 interface BaseProps {
@@ -20,12 +19,11 @@ export const Button = React.forwardRef(
         active: boolean
         reversed: boolean
       } & BaseProps
-    >,
-    ref: Ref<OrNull<HTMLSpanElement>>
+    >
   ) => (
     <span
       {...props}
-      ref={ref}
+      ref={useRef<HTMLDivElement>(null)}
       className={cx(
         className,
         css`
@@ -45,12 +43,11 @@ export const Button = React.forwardRef(
 
 export const Menu = React.forwardRef(
   (
-    { className, ...props }: PropsWithChildren<BaseProps>,
-    ref: Ref<OrNull<HTMLDivElement>>
+    { className, ...props }: PropsWithChildren<BaseProps>
   ) => (
     <div
       {...props}
-      ref={ref}
+      ref={useRef<HTMLDivElement>(null)}
       className={cx(
         className,
         css`

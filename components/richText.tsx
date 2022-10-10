@@ -1,6 +1,6 @@
 import React, { useState, useCallback } from "react";
 import isHotkey from 'is-hotkey'
-import { Editor, createEditor, Descendant, Transforms } from 'slate';
+import { Editor, createEditor, Descendant, Transforms, BaseEditor } from 'slate';
 import { Slate, Editable, withReact, useSlate } from 'slate-react';
 
 import { Button, Toolbar } from './components'
@@ -12,18 +12,19 @@ const HOTKEYS = {
   'mod+`': 'code',
 }
 
+const initialText = {
+    type: 'paragraph',
+    children: [
+        { text: 'Type Here.' }
+    ],
+}
 const initialValue: Descendant[] = [
-    {
-        type: 'paragraph',
-        children: [
-            { text: 'Type Here.' }
-        ],
-    },
-  ]
+    initialText
+]
 
 const RichText = () => {
     const [editor] = useState(() => withReact(createEditor()))
-    const renderLeaf = useCallback(props => <Leaf {...props} />, [])
+    const renderLeaf = useCallback((props: JSX.IntrinsicAttributes & { attributes: any; children: any; leaf: any; }) => <Leaf {...props} />, [])
     // const renderElement = useCallback(props => <Element {...props} />, [])
    
     return (
@@ -42,7 +43,7 @@ const RichText = () => {
                     for (const hotkey in HOTKEYS) {
                       if (isHotkey(hotkey, event as any)) {
                         event.preventDefault()
-                        const mark = HOTKEYS[hotkey]
+                        const mark = HOTKEYS[hotkey as keyof typeof HOTKEYS]
                         toggleMark(editor, mark)
                       }
                     }
@@ -52,7 +53,7 @@ const RichText = () => {
     )
 }
 
-const toggleMark = (editor, format) => {
+const toggleMark = (editor: BaseEditor, format: string) => {
     const isActive = isMarkActive(editor, format)
   
     if (isActive) {
@@ -63,17 +64,17 @@ const toggleMark = (editor, format) => {
 }
   
 
-const isMarkActive = (editor, format) => {
+const isMarkActive = (editor: BaseEditor, format: string | number) => {
     const marks = Editor.marks(editor)
-    return marks ? marks[format] === true : false
+    return marks ? marks[format as keyof typeof marks] === true : false
 }
 
-const MarkButton = ({ format, text }) => {
+const MarkButton = ({ format, text }:{ format: string, text: string }) => {
     const editor = useSlate()
     return (
       <Button
         active={isMarkActive(editor, format)}
-        onMouseDown={event => {
+        onMouseDown={(event: { preventDefault: () => void; }) => {
           event.preventDefault()
           toggleMark(editor, format)
         }}
@@ -83,7 +84,7 @@ const MarkButton = ({ format, text }) => {
     )
 }
 
-const Leaf = ({ attributes, children, leaf }) => {
+const Leaf = ({ attributes, children, leaf }: { attributes: object, children: any, leaf: any }) => {
     if (leaf.bold) {
       children = <strong>{children}</strong>
     }
